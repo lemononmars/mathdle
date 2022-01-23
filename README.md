@@ -1,14 +1,9 @@
-# Thwordle
+# Mathdle
 
-[Wordle](https://www.powerlanguage.co.uk/wordle/) clone, but it's Thai.
+[Wordle](https://www.powerlanguage.co.uk/wordle/) clone, but it's math.
 
 ## TODOs
 
-- [x] Show rule & special rule for Thai language
-- [x] Share (Copy result)
-- [x] Word of the day
-- [x] Save result (localstorage)
-- [ ] Limit attempts
 - [ ] Fix bugs
 
 ## Setup
@@ -21,5 +16,4 @@
 
 - Svelte (TypeScript), built with [Vite](https://vitejs.dev)
 - Tailwind.css using [Twind](https://twind.dev)
-- [Ko-fi](https://ko-fi.com)
 - [Jest](https://jestjs.io) & [@testing-library/svelte](https://testing-library.com/docs/svelte-testing-library)

@@ -2,38 +2,35 @@
   import { CharState } from "./Wordle"
 
   const example1 = [
-    { correct: CharState.Correct, char: "อ" },
-    { correct: CharState.NotUsed, char: "นุ" },
-    { correct: CharState.NotUsed, char: "ญ" },
-    { correct: CharState.NotUsed, char: "า" },
-    { correct: CharState.NotUsed, char: "ต" },
+    { correct: CharState.Correct, char: "2" },
+    { correct: CharState.NotUsed, char: "*" },
+    { correct: CharState.NotUsed, char: "3" },
+    { correct: CharState.NotUsed, char: "=" },
+    { correct: CharState.NotUsed, char: "7" },
+    { correct: CharState.NotUsed, char: "-" },
+    { correct: CharState.NotUsed, char: "1" },
   ]
 
   const example2 = [
-    { correct: CharState.NotUsed, char: "ป" },
-    { correct: CharState.OutOfPlace, char: "ร" },
-    { correct: CharState.NotUsed, char: "ะ" },
-    { correct: CharState.NotUsed, char: "โ" },
-    { correct: CharState.NotUsed, char: "ย" },
-    { correct: CharState.NotUsed, char: "ค" },
+    { correct: CharState.NotUsed, char: "1" },
+    { correct: CharState.NotUsed, char: "8" },
+    { correct: CharState.OutOfPlace, char: "/" },
+    { correct: CharState.NotUsed, char: "2" },
+    { correct: CharState.NotUsed, char: "=" },
+    { correct: CharState.NotUsed, char: "3" },
+    { correct: CharState.NotUsed, char: "*" },
+    { correct: CharState.NotUsed, char: "3" },
   ]
 
   const example3 = [
-    { correct: CharState.NotUsed, char: "พ" },
-    { correct: CharState.NotUsed, char: "ย" },
-    { correct: CharState.NotUsed, char: "า" },
-    { correct: CharState.Wrong, char: "บ" },
-    { correct: CharState.NotUsed, char: "า" },
-    { correct: CharState.NotUsed, char: "ท" },
-  ]
-
-  const example4 = [
-    { correct: CharState.NotUsed, char: "เ" },
-    { correct: CharState.Correct, char: "พิ่" },
-    { correct: CharState.NotUsed, char: "ม" },
-    { correct: CharState.NotUsed, char: "เ" },
-    { correct: CharState.OutOfPlace, char: "ติ" },
-    { correct: CharState.NotUsed, char: "ม" },
+    { correct: CharState.NotUsed, char: "-" },
+    { correct: CharState.NotUsed, char: "4" },
+    { correct: CharState.Wrong, char: "+" },
+    { correct: CharState.NotUsed, char: "5" },
+    { correct: CharState.NotUsed, char: "=" },
+    { correct: CharState.NotUsed, char: "9" },
+    { correct: CharState.NotUsed, char: "-" },
+    { correct: CharState.NotUsed, char: "8" },
   ]
 
   const colors = {
@@ -110,20 +107,28 @@
           </div> -->
           <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
             <h3 class="text-base leading-6 font-medium text-gray-900" id="modal-title">
-              เกม Thwordle
+              Mathdle
             </h3>
             <div class="mt-2">
               <p class="text-sm text-gray-500">
-                ทายคำปริศนาประจำวัน โดยการทายแต่ละครั้งจะได้ผลลัพท์เป็นสีต่างๆ<br />
-                (เหมือนกับ
+                Find the equation<br />
+                (just like
                 <a target="_blank" href="https://www.powerlanguage.co.uk/wordle" class="underline"
                   >Wordle</a
-                > นั่นแหละ แต่เป็นภาษาไทย)
+                > , but it's math.)
               </p>
             </div>
             <hr class="my-2" />
             <div class="mt-2">
-              <h3 class="text-base font-medium">ตัวอย่าง</h3>
+              <p class="text-sm text-gray-500">
+                <ul class="list-disc text-sm text-gray-500">
+                  <li>The solution is in the form <strong>a Y b = c Z d</strong>, where a,b,c,d are integers (possibly negative) and Y and Z are symbols (+,-,*,/) (possibly identical).</li>
+                  <li>For each guess, both sides of the equation must be equal</li>
+                </ul>
+            </div>
+            <hr class="my-2" />
+            <div class="mt-2">
+              <h3 class="text-base font-medium">Example</h3>
               <div class="flex justify-center my-1">
                 {#each example1 as { correct, char }}
                   <div
@@ -137,7 +142,7 @@
                 {/each}
               </div>
               <p class="text-sm text-gray-500 mb-4">
-                มีตัวอักษร <strong>อ</strong> อยู่ในคำ และอยู่ในตำแหน่งที่ถูกต้อง
+                The digit <strong>2</strong> is in the equation, and in the correct position.
               </p>
               <div class="flex justify-center my-1">
                 {#each example2 as { correct, char }}
@@ -152,7 +157,7 @@
                 {/each}
               </div>
               <p class="text-sm text-gray-500 mb-4">
-                มีตัวอักษร <strong>ร</strong> อยู่ในคำ แต่อยู่ในตำแหน่งที่ผิด
+                The division symbol <strong>/</strong> is in the equation, but in another position.
               </p>
               <div class="flex justify-center my-1">
                 {#each example3 as { correct, char }}
@@ -167,49 +172,8 @@
                 {/each}
               </div>
               <p class="text-sm text-gray-500 mb-4">
-                ไม่มีตัวอักษร <strong>บ</strong> อยู่ในคำปริศนา
+                The addition symbol <strong>+</strong> is not in the equation.
               </p>
-            </div>
-            <hr class="my-2" />
-            <div class="mt-2">
-              <h3 class="text-base leading-6 font-medium text-gray-900" id="modal-title">
-                กฎพิเศษ
-              </h3>
-              <p class="text-sm text-gray-500">
-                เนื่องจากภาษาไทยมีตัวสระและวรรณยุกต์ในตำแหน่งเดียวกันได้<br />
-                ถ้าตัวอักษรตัวกลางอยู่ในคำ (สีเขียว, สีเหลือง) จะมีการเติมสระ/วรรณยุกต์ให้โดยอัตโนมัติ
-              </p>
-              <div class="flex justify-center my-1">
-                {#each example4 as { correct, char }}
-                  <div
-                    class={`${
-                      colors[correct] || "bg-white"
-                    } w-10 h-10 border-solid border-2 flex items-center justify-center mx-0.5 text-base font-bold
-                rounded`}
-                  >
-                    {char ?? ""}
-                  </div>
-                {/each}
-              </div>
-              <p class="text-sm text-gray-500 mb-4">
-                มีตัวอักษร <strong>พ</strong> และอยู่ในตำแหน่งที่ถูกต้อง
-                จะทำการเติมสระ/วรรณยุกต์ให้โดยอัตโนมัติ (<strong>พิ่</strong>)
-              </p>
-              <p class="text-sm text-gray-500 mb-4">
-                มีตัวอักษร <strong>ข</strong> อยู่ในคำ จะทำการเติมสระ/วรรณยุกต์ให้โดยอัตโนมัติ (<strong
-                  >ติ</strong
-                >)
-              </p>
-              <p class="text-sm text-gray-500">
-                สระและวรรณยุกต์ตัวบน/ล่าง จะไม่ถูกทำเครื่องหมายว่าไม่อยู่ในคำนั้น หากใส่ผิดจุด
-              </p>
-
-              <hr class="my-2" />
-
-              <a
-                class="text-gray-500 text-sm underline"
-                href="https://twitter.com/narze/status/1483857313224355840">แจ้งบั๊ก / ข้อเสนอแนะ</a
-              >
             </div>
           </div>
         </div>

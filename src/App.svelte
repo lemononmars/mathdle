@@ -1,79 +1,56 @@
 <script lang="ts">
   import "twind/shim"
-  import { tw } from "twind"
-  import logo from "./assets/svelte.png"
   import Head from "./lib/Head.svelte"
-  import Kofi from "./lib/Kofi.svelte"
   import Menu from "./lib/Menu.svelte"
   import Social from "./lib/Social.svelte"
-  import { CharState, getShareResults, layout, splitWord, validateWord } from "./lib/Wordle"
-  import words from "./lib/words"
-  import { onMount, tick } from "svelte"
+  import { CharState, validateEquation, getShareResults, layout } from "./lib/Mathdle"
+  import { evaluate } from 'mathjs'
+  import { tick } from "svelte"
+  import Random  from "./lib/Random.ts"
   import Modal from "./lib/Modal.svelte"
-  import dict from "./lib/dict.json"
   import { store } from "./lib/store"
 
-  const url = "https://thwordle.vercel.app"
-  const title = "Thwordle"
+  const url = "https://lemononmars.github.io/puzzles/mathdle"
+  const title = "Mathdle"
 
   const menuItems = [
-    { name: "เจอบั๊ก?", url: "https://twitter.com/narze/status/1483857313224355840" },
-    { name: "Github", url: "https://github.com/narze/thwordle" },
+    { name: "Report a bug?", url: "https://m.me/sakulbuth" },
+    { name: "Original (Thwordle)", url: "https://github.com/narze/thwordle"},
+    { name: "Github", url: "https://github.com/lemononmars/mathdle" },
   ]
 
-  const description = "Wordle clone, but it's Thai."
+  const description = "Wordle clone, but it's Math."
   const imageUrl =
-    "https://raw.githubusercontent.com/narze/timelapse/master/projects/thwordle_home.png"
+    ""
 
-  const gtagId = "G-F2Q37REQE6"
-  const words5to7 = words.filter((word) => {
-    const w = splitWord(word)
-    return w.length >= 5 && w.length <= 7
-  })
-  const alphabetRows = groupArr(
-    "กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮะัาิีึืุูเแโำใไฤ่้๊๋์็".split(""),
-    11
+  const gtagId = "G-YTV7TZ3EMC"
+  const numberRows = groupArr(
+    "1234506789+-*/=".split(""),
+    5
   ).map((row) => row.join(""))
 
-  // const alphabetRows = [
-  // ["ๅ", "/", "_", "ภ", "ถ", "ุ", "ึ", "ค", "ต", "จ", "ข", "ช"].join(""),
-  // ["ๆ", "ไ", "ำ", "พ", "ะ", "ั", "ี", "ร", "น", "ย", "บ", "ล", "ฃ"].join(""),
-  // ["ฟ", "ห", "ก", "ด", "เ", "้", "่", "า", "ส", "ว", "ง"].join(""),
-  // ["ผ", "ป", "แ", "อ", "ิ", "ื", "ท", "ม", "ใ", "ฝ"].join(""),
-  // ["+", "๑", "๒", "๓", "๔", "ู", "฿", "๕", "๖", "๗", "๘", "๙"].join(""),
-  // ["๐", '"', "ฎ", "ฑ", "ธ", "ํ", "๊", "ณ", "ฯ", "ญ", "ฐ", ",", "ฅ"].join(""),
-  // ["ฤ", "ฆ", "ฏ", "โ", "ฌ", "็", "๋", "ษ", "ศ", "ซ", "."].join(""),
-  // ["(", ")", "ฉ", "ฮ", "ฺ", "์", "?", "ฒ", "ฬ", "ฦ"].join(""),
-  // ]
-
-  // January 19, 2022 Game Epoch
-  const epochMs = 1642525200000
+  // January 24, 2022 Game Epoch
+  const epochMs = 1642957200000
   const now = Date.now()
   const msInDay = 86400000
   const dateIndex = Math.floor((now - epochMs) / msInDay)
 
   let input = ""
-  // let solution = words5to7[Math.floor(Math.random() * words5to7.length)]
-  let solution = words5to7[dateIndex % words5to7.length]
+  let solution = getSolution(dateIndex)
   let attempts: string[] = $store.data[dateIndex]?.attempts || []
-  let validations = attempts.map((word) => validateWord(word, solution))
+  let validations = attempts.map((word) => validateEquation(word, solution))
   let gameEnded = !!$store.data[dateIndex]?.win
   let attemptsContainer
   let modal = true
   let copied = false
 
-  $: solutionLength = splitWord(solution).length
-
-  $: input = input.replace(/[^ก-๙]/g, "")
-  $: splittedInput = splitWord(input)
-  $: alphabetsLayoutRows = layout(alphabetRows, validations.flat())
+  $: solutionLength = solution.length
+  $: input = input.replace(/[^0-9\+\-\*\/\=]/g, "")
+  $: splittedInput = input.split("")
+  $: alphabetsLayoutRows = layout(numberRows, validations.flat())
   $: {
     store.set({ data: { ...$store.data, [`${dateIndex}`]: { attempts, win: gameEnded } } })
   }
-
-  // $: console.log(alphabetsLayout)
-
-  // $: validate = validateWord(input, solution)
 
   const colors = {
     [CharState.Correct]: "bg-green-500 border-green-500",
@@ -100,21 +77,41 @@
     }
 
     // Check if the length is valid
-    if (splitWord(input).length != solutionLength) {
-      alert("กรุณากรอกคำตอบ")
+    if (input.length != solutionLength) {
+      alert("Please match the input length")
       return
     }
 
-    // Check if the word is in the dict
-    if (!wordExists(input)) {
-      alert("คำนี้ไม่มีในพจนานุกรม")
+    let splittedEquation = input.split("=")
+    if (splittedEquation.length == 1) {
+      alert("Equals sign missing (=)")
+      return
+    }
+
+    if (splittedEquation.length > 2) {
+      alert("Too many equals sign!")
+      return
+    }
+
+    let left:number, right:number
+    try{
+      left = evaluate(splittedEquation[0])
+      right = evaluate(splittedEquation[1])
+    }
+    catch(error){
+      alert("Invalid expression")
+      return
+    }
+
+    if(left != right) {
+      alert("Invalid equation: " + left + "≠" + right)
       return
     }
 
     // Add to solution array
     attempts = [...attempts, input]
 
-    const validation = validateWord(input, solution)
+    const validation = validateEquation(input, solution)
     validations = [...validations, validation]
 
     // if all validation is correct
@@ -126,7 +123,7 @@
     })
 
     if (win) {
-      alert("คุณชนะแล้ว!")
+      alert("You won!")
       gameEnded = true
     }
 
@@ -136,11 +133,41 @@
     attemptsContainer.scrollTop = attemptsContainer.scrollHeight
   }
 
+  function getSolution(seed: number){
+    // simple equation for now:
+    // N1 S1 N2 = N3 S2 N4
+    const symbols = "+-/*".split("")
+    let random = new Random(seed)
+    let n1 = 0, n2 = 0, n3 =0, n4 = 0
+    let s1 = symbols[random.nextInt32([0,3])]
+    n2 = random.nextInt32([1,10])
+    // in case of division, change the pair from (n1, n2) to (n1*n2, n2) instead
+    switch(s1){
+      case "/": n1 = n2 * random.nextInt32([2,9]); break;
+      case "-": n1 = n2 + random.nextInt32([1,10]); break;
+      case "*": n1 = random.nextInt32([2,9]); break;
+      case "+": n1 = random.nextInt32([1,10]); break;
+      default:;
+    }
+
+    const left = evaluate(n1 + s1 + n2)
+
+    let s2 = symbols[random.nextInt32([0,2])] // excluding * for now to avoid checking stuff
+    n4 = random.nextInt32([1,10])
+    switch(s2){
+      case "+": n3 = left - n4; break;
+      case "-": n3 = left + n4; break;
+      case "/": n3 = left * n4; break;
+      default:;
+    }
+
+    return "" + n1 + s1 + n2 + "=" + n3 + s2 + n4
+  }
   function copyResult() {
     const results = getShareResults(validations)
 
     navigator.clipboard.writeText(
-      `#Thwordle ${dateIndex + 1} (${results.length} ครั้ง)\n\n${results.join("\n")}`
+      `#Mathdle Day ${dateIndex + 1} (${results.length} attempts)\n\n${results.join("\n")}`
     )
 
     copied = true
@@ -148,25 +175,6 @@
     setTimeout(() => {
       copied = false
     }, 2000)
-  }
-
-  function wordExists(input: string) {
-    if (words.includes(input)) {
-      return true
-    }
-    if (dict.includes(input)) {
-      return true
-    }
-
-    for (let i = 2; i < input.length - 1; i++) {
-      const left = input.slice(0, i)
-      const right = input.slice(i)
-      if (dict.includes(left) && dict.includes(right)) {
-        return true
-      }
-    }
-
-    return false
   }
 
   function groupArr(data, n) {
@@ -181,7 +189,6 @@
 </script>
 
 <div class="footer-wrapper">
-  <Kofi name="narze" label="Support Me" />
   <Menu items={menuItems} />
   <Social {url} {title} />
 </div>
@@ -192,7 +199,7 @@
     <span>{title}<span class="text-sm text-gray-400 ml-2">Beta</span></span>
   </h1>
 
-  วันที่ {dateIndex + 1}
+  Day {dateIndex + 1}
 
   <!-- DEBUG: Solution word -->
   <!-- <input type="text" class="border" bind:value={solution} /> -->
@@ -200,7 +207,7 @@
   <div class="attempts grow overflow-y-auto" bind:this={attemptsContainer}>
     {#each attempts as input}
       <div class="flex justify-center my-1">
-        {#each validateWord(input, solution) as { correct, char }}
+        {#each validateEquation(input, solution) as { correct, char }}
           <div
             class={`${
               colors[correct] || "bg-white"
@@ -233,7 +240,7 @@
     on:keypress={onKeypress}
     bind:value={input}
     disabled={gameEnded}
-    placeholder="คลิกที่นี่เพื่อใช้คีย์บอร์ด"
+    placeholder="Click here to use keyboard input"
     autofocus
   />
 
