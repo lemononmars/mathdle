@@ -20,7 +20,7 @@
   ]
 
   const description = "Wordle clone, but it's math."
-  const imageUrl = ""
+  const imageUrl = "https://i.imgur.com/z8BlEoK.png"
 
   const gtagId = "G-YTV7TZ3EMC"
   const numberRows = groupArr(
