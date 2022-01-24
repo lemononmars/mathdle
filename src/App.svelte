@@ -259,7 +259,7 @@
           <div
             class={`${
               colors[correct] || "bg-white"
-            } w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold
+            } ${solutionLength > 6? "attempt-box-sm": "attempt-box-lg"} border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold
       rounded`}
           >
             {char ?? ""}
@@ -271,7 +271,7 @@
       <div class="flex justify-center my-1">
         {#each new Array(solutionLength).fill(0) as _, i}
           <div
-            class={`bg-white w-14 h-14 border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded`}
+            class={`bg-white ${solutionLength > 6? "attempt-box-sm": "attempt-box-lg"} border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded`}
           >
             {splittedInput[i] || ""}
           </div>
@@ -361,12 +361,38 @@
   }
 
   .attempts {
-    min-height: 96px;
+    min-height: 3.5rem;
+  }
+  
+  .attempt-box-lg{
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .attempt-box-sm{
+    width: 3.5rem;
+    height: 3.5rem;
   }
 
   @media (max-height: 750px) {
     .footer-wrapper {
       display: none;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .footer-wrapper {
+      display: none;
+    }
+
+    .attempt-box-lg{
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+
+    .attempt-box-sm{
+      width: 2rem;
+      height: 2rem;
     }
   }
 </style>
