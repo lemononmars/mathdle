@@ -6,6 +6,7 @@
   import { CharState, validateEquation, getShareResults, layout } from "./lib/Mathdle"
   import { evaluate } from 'mathjs'
   import { tick } from "svelte"
+  import { fade, scale } from "svelte/transition"
   import Random  from "./lib/Random"
   import Modal from "./lib/Modal.svelte"
   import { store } from "./lib/store"
@@ -14,7 +15,8 @@
   const title = "Mathdle"
 
   const menuItems = [
-    { name: "Report a bug?", url: "https://m.me/sakulbuth" },
+    { name: "Found a bug?", url: "https://m.me/sakulbuth" },
+    { name: "Try Boardle", url: "https://lemononmars.github.io/boardle/" },
     { name: "Original (Thwordle)", url: "https://github.com/narze/thwordle"},
     { name: "Github", url: "https://github.com/lemononmars/mathdle" },
   ]
@@ -256,7 +258,7 @@
     {#each attempts[difficulty] as input}
       <div class="flex justify-center my-1">
         {#each validateEquation(input, solution) as { correct, char }}
-          <div
+          <div in:scale="{{duration: 1000}}" out:fade
             class={`${
               colors[correct] || "bg-white"
             } ${solutionLength > 6? "attempt-box-sm": "attempt-box-lg"} border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold
@@ -271,7 +273,7 @@
       <div class="flex justify-center my-1">
         {#each new Array(solutionLength).fill(0) as _, i}
           <div
-            class={`bg-white ${solutionLength > 6? "attempt-box-sm": "attempt-box-lg"} border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded`}
+            class={`animate-pulse bg-gray-200 ${solutionLength > 6? "attempt-box-sm": "attempt-box-lg"} border-solid border-2 flex items-center justify-center mx-0.5 text-lg font-bold rounded`}
           >
             {splittedInput[i] || ""}
           </div>
