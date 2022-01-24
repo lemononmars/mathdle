@@ -12,20 +12,20 @@ const emojiColors = {
 }
 
 export function validateEquation(word: string, solution: string) {
-  const wordSplitted = word.split("")
+  const inputSplitted = word.split("")
   const solutionSplitted = solution.split("")
 
   // Falls back to wrong
-  const output = wordSplitted.map((char) => ({ correct: CharState.Wrong, char }))
+  const output = inputSplitted.map((char) => ({ correct: CharState.Wrong, char }))
 
   // First Pass: Check correct character in correct place
   solutionSplitted.forEach((sChar, idx) => {
-    const char = wordSplitted[idx]
+    const char = inputSplitted[idx]
 
     // If matching character or normalized char, and in correct position
     if (char === sChar) {
       solutionSplitted[idx] = null
-      wordSplitted[idx] = null
+      inputSplitted[idx] = null
 
       output[idx] = { correct: CharState.Correct, char: sChar }
     }
@@ -33,7 +33,7 @@ export function validateEquation(word: string, solution: string) {
 
   // Second Pass: Check out-of-place characters
   solutionSplitted.forEach((_sChar, idx) => {
-    const char = wordSplitted[idx]
+    const char = inputSplitted[idx]
 
     if (char) {
       // If matching character or normalized char, and in correct position
@@ -49,7 +49,7 @@ export function validateEquation(word: string, solution: string) {
           correctChar = solutionSplitted[idx1]
 
           solutionSplitted[idx1] = null
-          wordSplitted[idx] = null
+          inputSplitted[idx] = null
         }
 
         output[idx] = { correct: CharState.OutOfPlace, char: correctChar }
@@ -78,10 +78,6 @@ export function layout(
         if (correct < layout[c]) {
           // Correct < OutOfPlace < Wrong < Unused
           layout[c] = correct
-        }
-
-        if (layout[c] === CharState.Wrong) {
-          layout[c] = CharState.NotUsed
         }
       })
     })

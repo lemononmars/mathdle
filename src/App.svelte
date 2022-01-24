@@ -6,11 +6,11 @@
   import { CharState, validateEquation, getShareResults, layout } from "./lib/Mathdle"
   import { evaluate } from 'mathjs'
   import { tick } from "svelte"
-  import Random  from "./lib/Random.ts"
+  import Random  from "./lib/Random"
   import Modal from "./lib/Modal.svelte"
   import { store } from "./lib/store"
 
-  const url = "https://lemononmars.github.io/puzzles/mathdle"
+  const url = "https://lemononmars.github.io/mathdle"
   const title = "Mathdle"
 
   const menuItems = [
@@ -19,9 +19,8 @@
     { name: "Github", url: "https://github.com/lemononmars/mathdle" },
   ]
 
-  const description = "Wordle clone, but it's Math."
-  const imageUrl =
-    ""
+  const description = "Wordle clone, but it's math."
+  const imageUrl = ""
 
   const gtagId = "G-YTV7TZ3EMC"
   const numberRows = groupArr(
@@ -36,20 +35,27 @@
   const dateIndex = Math.floor((now - epochMs) / msInDay)
 
   let input = ""
-  let solution = getSolution(dateIndex)
-  let attempts: string[] = $store.data[dateIndex]?.attempts || []
-  let validations = attempts.map((word) => validateEquation(word, solution))
-  let gameEnded = !!$store.data[dateIndex]?.win
+  let difficulty = 0
+  const difficultyString = ["easy", "medium", "hard"]
+  let solutions = getSolutions(dateIndex)
+  let attempts: string[][] = $store.data[dateIndex]?.attempts || [[],[],[]]
+  let validations = attempts.map((att, idx) => 
+    att.map((word)=>validateEquation(word, solutions[idx]))
+  )
+  let gameEnded: boolean[] = $store.data[dateIndex]?.win || [false,false,false]
   let attemptsContainer
   let modal = true
   let copied = false
 
+  $: solution = solutions[difficulty]
   $: solutionLength = solution.length
   $: input = input.replace(/[^0-9\+\-\*\/\=]/g, "")
   $: splittedInput = input.split("")
-  $: alphabetsLayoutRows = layout(numberRows, validations.flat())
+  $: alphabetsLayoutRows = layout(numberRows, validations[difficulty].flat())
   $: {
-    store.set({ data: { ...$store.data, [`${dateIndex}`]: { attempts, win: gameEnded } } })
+    store.set({ data: { ...$store.data, [`${dateIndex}`]: 
+      {attempts, win: gameEnded}
+    }})
   }
 
   const colors = {
@@ -72,7 +78,7 @@
   }
 
   async function submit() {
-    if (gameEnded) {
+    if (gameEnded[difficulty]) {
       return
     }
 
@@ -89,7 +95,7 @@
     }
 
     if (splittedEquation.length > 2) {
-      alert("Too many equals sign!")
+      alert("Too many equals signs!")
       return
     }
 
@@ -109,10 +115,10 @@
     }
 
     // Add to solution array
-    attempts = [...attempts, input]
+    attempts[difficulty] = [...attempts[difficulty], input]
 
     const validation = validateEquation(input, solution)
-    validations = [...validations, validation]
+    validations[difficulty] = [...validations[difficulty], validation]
 
     // if all validation is correct
     let win = true
@@ -124,7 +130,7 @@
 
     if (win) {
       alert("You won!")
-      gameEnded = true
+      gameEnded[difficulty] = true
     }
 
     input = ""
@@ -133,13 +139,35 @@
     attemptsContainer.scrollTop = attemptsContainer.scrollHeight
   }
 
-  function getSolution(seed: number){
-    // simple equation for now:
-    // N1 S1 N2 = N3 S2 N4
+  function getSolutions(seed: number){
+    
+    let sols = ["", "", ""]
     const symbols = "+-/*".split("")
     let random = new Random(seed)
     let n1 = 0, n2 = 0, n3 =0, n4 = 0
+
+    // easy: just
+    // N1 S1 N2 = N3
+    // or N1 = N2 S1 N3
     let s1 = symbols[random.nextInt32([0,3])]
+    n2 = random.nextInt32([1,10])
+    // in case of division, change the pair from (n1, n2) to (n1*n2, n2) instead
+    switch(s1){
+      case "/": n1 = n2 * random.nextInt32([2,9]); break;
+      case "-": n1 = n2 + random.nextInt32([1,10]); break;
+      case "*": n1 = random.nextInt32([2,9]); break;
+      case "+": n1 = random.nextInt32([1,10]); break;
+      default:;
+    }
+    n3 = evaluate(n1 + s1 + n2)
+    if(random.nextInt32([0,1]))
+      sols[0] = "" + n1 + s1 + n2 + "=" + n3
+    else
+      sols[0] = "" + n3 + "=" + n1 + s1 + n2
+
+    // medium: simple equation for now:
+    // N1 S1 N2 = N3 S2 N4
+    s1 = symbols[random.nextInt32([0,3])]
     n2 = random.nextInt32([1,10])
     // in case of division, change the pair from (n1, n2) to (n1*n2, n2) instead
     switch(s1){
@@ -152,7 +180,7 @@
 
     const left = evaluate(n1 + s1 + n2)
 
-    let s2 = symbols[random.nextInt32([0,2])] // excluding * for now to avoid checking stuff
+    let s2 = symbols[random.nextInt32([0,2])] // exclude * for now to avoid checking for divisors
     n4 = random.nextInt32([1,10])
     switch(s2){
       case "+": n3 = left - n4; break;
@@ -160,14 +188,19 @@
       case "/": n3 = left * n4; break;
       default:;
     }
+    sols[1] = "" + n1 + s1 + n2 + "=" + n3 + s2 + n4
 
-    return "" + n1 + s1 + n2 + "=" + n3 + s2 + n4
+    // hard: to be added
+    // decimal? square root and power? 3-digit numbers?
+
+    return sols
   }
+
   function copyResult() {
-    const results = getShareResults(validations)
+    const results = getShareResults(validations[difficulty])
 
     navigator.clipboard.writeText(
-      `#Mathdle Day ${dateIndex + 1} (${results.length} attempts)\n\n${results.join("\n")}`
+      `#Mathdle Day ${dateIndex + 1} ${difficultyString[difficulty]} (${results.length} attempts)\n\n${results.join("\n")}`
     )
 
     copied = true
@@ -201,11 +234,26 @@
 
   Day {dateIndex + 1}
 
+  <div class="flex flex-row justify-center">
+    <button
+      on:click={()=> {difficulty = 0; input = ""}}
+      class={`flex text-lg items-center justify-center rounded border mx-2 p-3 ${difficulty == 0? "bg-blue-300 border-blue-300": "bg-grey-300 border-grey-300"} text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-300 active:bg-slate-400`}
+    >
+      Easy</button
+    >
+    <button
+      on:click={() => {difficulty = 1; input = ""}}
+      class={`flex text-lg items-center justify-center rounded border mx-2 p-3 ${difficulty == 1? "bg-blue-300 border-blue-300": "bg-grey-300 border-grey-300"} text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-300 active:bg-slate-400`}
+    >
+      Medium</button
+    >
+  </div>
+
   <!-- DEBUG: Solution word -->
   <!-- <input type="text" class="border" bind:value={solution} /> -->
   <!-- Check Solution -->
   <div class="attempts grow overflow-y-auto" bind:this={attemptsContainer}>
-    {#each attempts as input}
+    {#each attempts[difficulty] as input}
       <div class="flex justify-center my-1">
         {#each validateEquation(input, solution) as { correct, char }}
           <div
@@ -219,7 +267,7 @@
         {/each}
       </div>
     {/each}
-    {#if !gameEnded}
+    {#if !gameEnded[difficulty]}
       <div class="flex justify-center my-1">
         {#each new Array(solutionLength).fill(0) as _, i}
           <div
@@ -234,15 +282,16 @@
 
   <!-- Word Input -->
   <!-- svelte-ignore a11y-autofocus -->
-  <input
-    type="text"
-    class="border px-4 py-2 text-center w-64"
-    on:keypress={onKeypress}
-    bind:value={input}
-    disabled={gameEnded}
-    placeholder="Click here to use keyboard input"
-    autofocus
-  />
+  {#if !gameEnded[difficulty]}
+    <input
+      type="text"
+      class="border px-4 py-2 text-center w-64"
+      on:keypress={onKeypress}
+      bind:value={input}
+      placeholder="Click here to use keyboard input"
+      autofocus
+    />
+  {/if}
 
   <!-- Layout -->
   <div class="layout my-4 w-full px-2 md:w-2/3 lg:w-1/2 xl:w-1/3 2xl:w-1/4">
@@ -264,7 +313,7 @@
 
   <!-- Input word -->
   <div class="mb-16 text-center">
-    {#if gameEnded}
+    {#if gameEnded[difficulty]}
       <button
         on:click={copyResult}
         class="flex text-lg items-center justify-center rounded border mx-2 p-3 bg-green-300 border-green-300 text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-300 active:bg-slate-400"

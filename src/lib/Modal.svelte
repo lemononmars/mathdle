@@ -111,24 +111,35 @@
             </h3>
             <div class="mt-2">
               <p class="text-sm text-gray-500">
-                Find the equation<br />
-                (just like
+                Find the equation.<br />
+                (Just like
                 <a target="_blank" href="https://www.powerlanguage.co.uk/wordle" class="underline"
                   >Wordle</a
                 > , but it's math.)
               </p>
             </div>
             <hr class="my-2" />
+            <h3 class="text-base leading-6 font-medium text-gray-900" id="modal-title">
+              Rules
+            </h3>
             <div class="mt-2">
               <p class="text-sm text-gray-500">
-                <ul class="list-disc text-sm text-gray-500">
-                  <li>The solution is in the form <strong>a Y b = c Z d</strong>, where a,b,c,d are integers (possibly negative) and Y and Z are symbols (+,-,*,/) (possibly identical).</li>
-                  <li>For each guess, both sides of the equation must be equal</li>
+                <ul class="list-decimal text-sm text-gray-500">
+                  <li>Each guess must be a valid equation (both sides of the equation must be equal.)</li>
+                  <li>When necessary, the <a target="_blank" href="https://en.wikipedia.org/wiki/Order_of_operations" class="underline"
+                    >order of operation</a
+                  > is applied.</li>
+                  <li>There are 10 modes:
+                    <ul class="list-disc text-sm text-gray-500">
+                      <li><strong>Easy</strong>: the solution has one operation (+,-,*,/), and all numbers are positive integers.</li>
+                      <li><strong>Medium</strong>: the solution has two operations (possiblty identical), and all numbers are integers (possibly zero or negative). It is always in the form <strong>a Y b = c Z d</strong> where a,b,c, and d are numbers and Y and Z are operations.</li>
+                    </ul>
+                  </li>
                 </ul>
             </div>
             <hr class="my-2" />
             <div class="mt-2">
-              <h3 class="text-base font-medium">Example</h3>
+              <h3 class="text-base font-medium">Examples</h3>
               <div class="flex justify-center my-1">
                 {#each example1 as { correct, char }}
                   <div

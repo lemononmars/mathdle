@@ -8,6 +8,6 @@ git init
 git add -A
 git commit -m 'deploy'
 
-git push -f git@github.com:lemononmars/mathdle.git main:gh-pages
+git push -f https://github.com/lemononmars/mathdle.git master
 
 cd -
