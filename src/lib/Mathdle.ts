@@ -69,7 +69,7 @@ export function validateEquation(word: string, solution: string, difficulty: num
 
     // Remove one matching char from solution, so that it cannot be matched again
     const idx1 = solutionSplitted.indexOf(char)
-    if(difficulty === DIFFICULTY_HARD && forbiddenIndices.includes(idx1)) return
+    if(difficulty === DIFFICULTY_HARD && forbiddenIndices.includes(parseInt(char))) return
 
     const correctChar = solutionSplitted[idx1]
     solutionSplitted[idx1] = null
