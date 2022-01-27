@@ -3,11 +3,11 @@
   import Head from "./lib/Head.svelte"
   import Menu from "./lib/Menu.svelte"
   import Social from "./lib/Social.svelte"
-  import { CharState, validateEquation, getShareResults, layout } from "./lib/Mathdle"
-  import { evaluate } from 'mathjs'
+  import { CharState, getSolutions, validateEquation, getShareResults, layout } from "./lib/Mathdle"
   import { tick } from "svelte"
+  import { evaluate } from 'mathjs'
   import { fade, scale } from "svelte/transition"
-  import Random  from "./lib/Random"
+
   import Modal from "./lib/Modal.svelte"
   import { store } from "./lib/store"
 
@@ -42,7 +42,7 @@
   let solutions = getSolutions(dateIndex)
   let attempts: string[][] = $store.data[dateIndex]?.attempts || [[],[],[]]
   let validations = attempts.map((att, idx) => 
-    att.map((word)=>validateEquation(word, solutions[idx]))
+    att.map((word)=>validateEquation(word, solutions[idx], difficulty))
   )
   let gameEnded: boolean[] = $store.data[dateIndex]?.win || [false,false,false]
   let attemptsContainer
@@ -119,7 +119,7 @@
     // Add to solution array
     attempts[difficulty] = [...attempts[difficulty], input]
 
-    const validation = validateEquation(input, solution)
+    const validation = validateEquation(input, solution, difficulty)
     validations[difficulty] = [...validations[difficulty], validation]
 
     // if all validation is correct
@@ -139,63 +139,6 @@
 
     await tick()
     attemptsContainer.scrollTop = attemptsContainer.scrollHeight
-  }
-
-  function getSolutions(seed: number){
-    
-    let sols = ["", "", ""]
-    const symbols = "+-/*".split("")
-    let random = new Random(seed)
-    let n1 = 0, n2 = 0, n3 =0, n4 = 0
-
-    // easy: just
-    // N1 S1 N2 = N3
-    // or N1 = N2 S1 N3
-    let s1 = symbols[random.nextInt32([0,3])]
-    n2 = random.nextInt32([1,10])
-    // in case of division, change the pair from (n1, n2) to (n1*n2, n2) instead
-    switch(s1){
-      case "/": n1 = n2 * random.nextInt32([2,9]); break;
-      case "-": n1 = n2 + random.nextInt32([1,10]); break;
-      case "*": n1 = random.nextInt32([2,9]); break;
-      case "+": n1 = random.nextInt32([1,10]); break;
-      default:;
-    }
-    n3 = evaluate(n1 + s1 + n2)
-    if(random.nextInt32([0,1]))
-      sols[0] = "" + n1 + s1 + n2 + "=" + n3
-    else
-      sols[0] = "" + n3 + "=" + n1 + s1 + n2
-
-    // medium: simple equation for now:
-    // N1 S1 N2 = N3 S2 N4
-    s1 = symbols[random.nextInt32([0,3])]
-    n2 = random.nextInt32([1,10])
-    // in case of division, change the pair from (n1, n2) to (n1*n2, n2) instead
-    switch(s1){
-      case "/": n1 = n2 * random.nextInt32([2,9]); break;
-      case "-": n1 = n2 + random.nextInt32([1,10]); break;
-      case "*": n1 = random.nextInt32([2,9]); break;
-      case "+": n1 = random.nextInt32([1,10]); break;
-      default:;
-    }
-
-    const left = evaluate(n1 + s1 + n2)
-
-    let s2 = symbols[random.nextInt32([0,2])] // exclude * for now to avoid checking for divisors
-    n4 = random.nextInt32([1,10])
-    switch(s2){
-      case "+": n3 = left - n4; break;
-      case "-": n3 = left + n4; break;
-      case "/": n3 = left * n4; break;
-      default:;
-    }
-    sols[1] = "" + n1 + s1 + n2 + "=" + n3 + s2 + n4
-
-    // hard: to be added
-    // decimal? square root and power? 3-digit numbers?
-
-    return sols
   }
 
   function copyResult() {
@@ -249,15 +192,24 @@
     >
       Medium</button
     >
+    <button
+      on:click={() => {difficulty = 2; input = ""}}
+      class={`flex text-lg items-center justify-center rounded border mx-2 p-3 ${difficulty == 2? "bg-blue-300 border-blue-300": "bg-grey-300 border-grey-300"} text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-300 active:bg-slate-400`}
+    >
+      Hard</button
+    >
   </div>
-
+  {#if difficulty === 2}
+    <span class="text-sm text-red-400 ml-3">Additional rule:</span> 
+    <span class="text-sm text-gray-400 ml-3">For each digit N in your guess, the N-th position will not be checked. For example, if your guess is 1+2=3, then the first, second, and third position will not be checked.</span>
+  {/if}
   <!-- DEBUG: Solution word -->
   <!-- <input type="text" class="border" bind:value={solution} /> -->
   <!-- Check Solution -->
   <div class="attempts grow overflow-y-auto" bind:this={attemptsContainer}>
     {#each attempts[difficulty] as input}
       <div class="flex justify-center my-1">
-        {#each validateEquation(input, solution) as { correct, char }}
+        {#each validateEquation(input, solution, difficulty) as { correct, char }}
           <div in:scale="{{duration: 1000}}" out:fade
             class={`${
               colors[correct] || "bg-white"
