@@ -2,7 +2,7 @@
 
 set -e
 git add .
-git commit -m 'push'
+git commit -m 'revise rules for duplicate hints'
 git push -f https://github.com/lemononmars/mathdle.git main
 
 npm run build

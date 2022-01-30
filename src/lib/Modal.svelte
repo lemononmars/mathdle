@@ -3,34 +3,32 @@
 
   const example1 = [
     { correct: CharState.Correct, char: "2" },
-    { correct: CharState.NotUsed, char: "*" },
-    { correct: CharState.NotUsed, char: "3" },
+    { correct: CharState.NotUsed, char: "+" },
+    { correct: CharState.OutOfPlace, char: "3" },
     { correct: CharState.NotUsed, char: "=" },
     { correct: CharState.NotUsed, char: "7" },
-    { correct: CharState.NotUsed, char: "-" },
-    { correct: CharState.NotUsed, char: "1" },
+    { correct: CharState.Wrong, char: "-" },
+    { correct: CharState.NotUsed, char: "1" }
   ]
 
   const example2 = [
-    { correct: CharState.NotUsed, char: "1" },
-    { correct: CharState.NotUsed, char: "8" },
-    { correct: CharState.OutOfPlace, char: "/" },
-    { correct: CharState.NotUsed, char: "2" },
+    { correct: CharState.NotUsed, char: "9" },
+    { correct: CharState.Correct, char: "-" },
+    { correct: CharState.NotUsed, char: "4" },
     { correct: CharState.NotUsed, char: "=" },
-    { correct: CharState.NotUsed, char: "3" },
-    { correct: CharState.NotUsed, char: "*" },
-    { correct: CharState.NotUsed, char: "3" },
+    { correct: CharState.NotUsed, char: "8" },
+    { correct: CharState.Wrong, char: "-" },
+    { correct: CharState.NotUsed, char: "3" }
   ]
 
   const example3 = [
-    { correct: CharState.NotUsed, char: "-" },
-    { correct: CharState.NotUsed, char: "4" },
-    { correct: CharState.Wrong, char: "+" },
-    { correct: CharState.NotUsed, char: "5" },
+    { correct: CharState.Correct, char: "2" },
     { correct: CharState.NotUsed, char: "=" },
-    { correct: CharState.NotUsed, char: "9" },
-    { correct: CharState.NotUsed, char: "-" },
+    { correct: CharState.NotUsed, char: "4" },
     { correct: CharState.NotUsed, char: "8" },
+    { correct: CharState.NotUsed, char: "/" },
+    { correct: CharState.OutOfPlace, char: "2" },
+    { correct: CharState.NotUsed, char: "4" }
   ]
 
   const colors = {
@@ -129,14 +127,6 @@
                   <li>When necessary, the <a target="_blank" href="https://en.wikipedia.org/wiki/Order_of_operations" class="underline"
                     >order of operation</a
                   > is applied.</li>
-                  <li>There are 3 difficulty levels:
-                    <ul class="list-disc text-sm text-gray-500">
-                      <li><strong>Easy</strong>: the solution has one operation (+,-,*,/), and all numbers are positive integers.</li>
-                      <li><strong>Medium</strong>: the solution has two operations (possiblty identical), and all numbers are integers (possibly zero or negative). It is always in the form <strong>a Y b = c Z d</strong> where a,b,c, and d are numbers and Y and Z are operations.</li>
-                      <li><strong>Hard</strong>: Medium, plus the additional rule: For each digit N in your guess, the N-th position will not be checked. For example, if your guess is 1+2=3, then the first, second, and third position (1, + and 2) will not be checked.
-                      </li>
-                    </ul>
-                  </li>
                 </ul>
             </div>
             <hr class="my-2" />
@@ -155,7 +145,9 @@
                 {/each}
               </div>
               <p class="text-sm text-gray-500 mb-4">
-                The digit <strong>2</strong> is in the equation, and in the correct position.
+                The digit <strong>2</strong> is in the equation, and in the correct position.<br>
+                The digit <strong>3</strong> is in the equation, but in another position.<br>
+                The minus symbol <strong>-</strong> is not in the equation.
               </p>
               <div class="flex justify-center my-1">
                 {#each example2 as { correct, char }}
@@ -170,7 +162,8 @@
                 {/each}
               </div>
               <p class="text-sm text-gray-500 mb-4">
-                The division symbol <strong>/</strong> is in the equation, but in another position.
+                The first minus symbol <strong>-</strong> is in the correct position.<br>
+                The second minus symbol is gray, implying that the first one is the only minus symbol in the equation.
               </p>
               <div class="flex justify-center my-1">
                 {#each example3 as { correct, char }}
@@ -185,8 +178,23 @@
                 {/each}
               </div>
               <p class="text-sm text-gray-500 mb-4">
-                The addition symbol <strong>+</strong> is not in the equation.
+                The first digit <strong>2</strong> is in the correct position.<br>
+                The second digit <strong>2</strong> is orange, implying that there is another digit 2 in a different position.<br>
+                Note that it is still possible to have three (or even more) digit 2s!
               </p>
+              <hr class="my-2" />
+              <h3 class="text-base leading-6 font-medium text-gray-900" id="modal-title">
+                Difficulty levels
+              </h3>
+              <div class="mt-2">
+                <p class="text-sm text-gray-500">
+                  <ul class="list-disc text-sm text-gray-500">
+                    <li><strong>Easy</strong>: the solution has one operation (+,-,*,/), and all numbers are positive integers.</li>
+                    <li><strong>Medium</strong>: the solution has two operations (possiblty identical), and all numbers are integers (possibly zero or negative). It is always in the form <strong>a Y b = c Z d</strong> where a,b,c, and d are numbers and Y and Z are operations.</li>
+                    <li><strong>Hard</strong>: Same retrictions as Medium, plus the additional rule: For each digit N in your guess, the N-th position will not be checked. For example, if your guess is 1+2=3, then the first, second, and third position (1, + and 2) will not be checked.
+                    </li>
+                  </ul>
+              </div>
             </div>
           </div>
         </div>
