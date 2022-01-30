@@ -11,7 +11,8 @@ export enum CharState {
 const emojiColors = {
   [CharState.Correct]: "🟩",
   [CharState.OutOfPlace]: "🟨",
-  [CharState.Wrong]: "⬜",
+  [CharState.Wrong]: "⬛",
+  [CharState.NotUsed]: "⬜",
 }
 
 const DIFFICULTY_HARD = 2
@@ -22,15 +23,11 @@ export function validateEquation(word: string, solution: string, difficulty: num
   const solutionSplitted = solution.split("")
 
   // Falls back to wrong or unused
-  let output
+  let output = inputSplitted.map((char) => ({ correct: CharState.Wrong, char }))
   if(difficulty === DIFFICULTY_HARD) 
-    output = inputSplitted.map((char, idx) => ({ 
-      correct: inputSplitted.includes("" + (idx+1))? CharState.NotUsed: CharState.Wrong, char 
-    }))
-  else
-    output = inputSplitted.map((char) => ({ 
-      correct: CharState.Wrong, char 
-    }))
+    output.forEach((op, idx) => 
+      op.correct = inputSplitted.includes("" + (idx+1))? CharState.NotUsed: CharState.Wrong
+    )
 
   // pre-check: if everything matches, then it's solved
   let solved = true
@@ -54,7 +51,7 @@ export function validateEquation(word: string, solution: string, difficulty: num
       solutionSplitted[idx] = null
       inputSplitted[idx] = null
 
-      output[idx] = { correct: CharState.Correct, char: sChar }
+      output[idx].correct = CharState.Correct
     }
   })
 
@@ -69,13 +66,11 @@ export function validateEquation(word: string, solution: string, difficulty: num
 
     // Remove one matching char from solution, so that it cannot be matched again
     const idx1 = solutionSplitted.indexOf(char)
-    if(difficulty === DIFFICULTY_HARD && forbiddenIndices.includes(parseInt(char))) return
 
-    const correctChar = solutionSplitted[idx1]
     solutionSplitted[idx1] = null
     inputSplitted[idx] = null
 
-    output[idx] = { correct: CharState.OutOfPlace, char: correctChar }
+    output[idx].correct = CharState.OutOfPlace
   })
   return output
 }

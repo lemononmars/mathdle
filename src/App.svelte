@@ -201,7 +201,8 @@
   </div>
   {#if difficulty === 2}
     <span class="text-sm text-red-400 ml-3">Additional rule:</span> 
-    <span class="text-sm text-gray-400 ml-3">For each digit N in your guess, the N-th position will not be checked. For example, if your guess is 1+2=3, then the first, second, and third position will not be checked.</span>
+    <span class="text-sm text-black-400 ml-3">For each digit N in your guess, the N-th position will not be checked.</span>
+    <span class="text-sm text-gray-400 ml-3">For example, if your guess is 1+2=3, then the first, second, and third position (1, + and 2) will not be checked.</span>
   {/if}
   <!-- DEBUG: Solution word -->
   <!-- <input type="text" class="border" bind:value={solution} /> -->
@@ -278,27 +279,30 @@
       <div class="flex flex-row justify-center">
         <button
           on:click={submit}
-          class="flex text-lg items-center justify-center rounded border mx-2 p-3 bg-green-300 border-green-300 text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-300 active:bg-slate-400"
+          class="flex items-center justify-center rounded border mx-2 p-3 bg-green-300 border-green-300 text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-300 active:bg-slate-400"
         >
-          Enter</button
+          Submit</button
         >
         <button
           on:click={() => {
             input = ""
           }}
-          class="flex text-lg items-center justify-center rounded border mx-2 p-3 bg-red-300 border-red-300 text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-300 active:bg-slate-400"
+          class="flex items-center justify-center rounded border mx-2 p-3 bg-red-300 border-red-300 text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-300 active:bg-slate-400"
         >
           Clear</button
+        >
+        <button
+          on:click={() => {
+            modal = true
+          }}
+          class="flex text-lg items-center justify-center rounded border mx-2 p-3 bg-pink-300 border-pink-300 text-xs font-bold cursor-pointer bg-slate-200 hover:bg-slate-100 active:bg-slate-400"
+        >
+          Rules</button
         >
       </div>
     {/if}
   </div>
 
-  <!-- Debug -->
-  <!-- <div class="flex justify-center my-20">
-    <div>DEBUG</div>
-    {JSON.stringify(attempts)}
-  </div> -->
   {#if modal}
     <Modal
       onClose={() => {
@@ -326,12 +330,6 @@
   .attempt-box-sm{
     width: 3.5rem;
     height: 3.5rem;
-  }
-
-  @media (max-height: 750px) {
-    .footer-wrapper {
-      display: none;
-    }
   }
 
   @media (max-width: 500px) {

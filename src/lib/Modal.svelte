@@ -125,14 +125,16 @@
             <div class="mt-2">
               <p class="text-sm text-gray-500">
                 <ul class="list-decimal text-sm text-gray-500">
-                  <li>Each guess must be a valid equation (both sides of the equation must be equal.)</li>
+                  <li>Each guess must be a valid equation (i.e. both sides of the equation must be equal.)</li>
                   <li>When necessary, the <a target="_blank" href="https://en.wikipedia.org/wiki/Order_of_operations" class="underline"
                     >order of operation</a
                   > is applied.</li>
-                  <li>There are 10 modes:
+                  <li>There are 3 difficulty levels:
                     <ul class="list-disc text-sm text-gray-500">
                       <li><strong>Easy</strong>: the solution has one operation (+,-,*,/), and all numbers are positive integers.</li>
                       <li><strong>Medium</strong>: the solution has two operations (possiblty identical), and all numbers are integers (possibly zero or negative). It is always in the form <strong>a Y b = c Z d</strong> where a,b,c, and d are numbers and Y and Z are operations.</li>
+                      <li><strong>Hard</strong>: Medium, plus the additional rule: For each digit N in your guess, the N-th position will not be checked. For example, if your guess is 1+2=3, then the first, second, and third position (1, + and 2) will not be checked.
+                      </li>
                     </ul>
                   </li>
                 </ul>
